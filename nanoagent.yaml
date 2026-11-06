@@ -1,0 +1,39 @@
+_ > nanoagent.plugin.v0001.ManifestConfig:
+id: chord-chart-transpose
+name: Chord Chart Transpose
+version: 0.1.0
+status: ready
+spec: nanoagent.plugin/v0001
+
+runtime > nanoagent.plugin.v0001.RuntimeConfig:
+  type: mcp_stdio
+  command: [uv, run, --frozen, python, -m, plugin]
+
+permissions > nanoagent.plugin.v0001.PermissionsConfig:
+  network > nanoagent.plugin.v0001.NetworkConfig:
+    hosts: []
+  filesystem > nanoagent.plugin.v0001.FilesystemConfig:
+    write: [workspace]
+
+# One entry per contract.Tool; its input and output classes are contract.TOOLS's.
+tools > dict[contract.Tool, nanoagent.plugin.v0001.ToolConfig]:
+  get_chart:
+    description: Get the task's chord chart, its key, and the interval up from its tonic to the target key's tonic in letters and semitones
+  key_info:
+    description: Give a key's mode, its seven scale notes from the tonic and its key signature
+  pin_transposition:
+    description: Pin the chart and its correct transposition into the target key, the task's answer key
+
+# One entry per contract.Task; its input class is contract.TASKS's.
+tasks > dict[contract.Task, nanoagent.plugin.v0001.TaskConfig]:
+  transpose-chart:
+    description: Transpose a chord chart into another key of the same mode, spelling every note the way the new key does
+    runner: agent
+    tools: [get_chart, key_info]
+    reference: pin_transposition
+    instructions: |-
+      Plan. Call get_chart once with the task input copied exactly, then submit. You may call key_info for the target key if you want its scale; nothing else is needed.
+      Rule. Move every note, each chord's root and the bass after a slash, by the interval get_chart gives: letter_steps letters up the alphabet C D E F G A B (wrapping from B to C) and semitones semitones up (mod 12). The new letter is fixed by letter_steps; its accidental is whatever makes the pitch right: none, # or b. For example, from C to Eb (letter_steps 2, semitones 3), C becomes Eb, F# becomes A, B becomes D, and D/F# becomes F/A. Natural pitches: C 0, D 2, E 4, F 5, G 7, A 9, B 11; # adds 1, b takes 1.
+      Double accidentals. If the moved note would need ## or bb, write the same pitch one letter over instead: a double sharp goes to the next letter up (F## is G, E## is F#, A## is B), a double flat to the next letter down (Bbb is A, Cbb is Bb, Fbb is Eb). Never write ## or bb.
+      Everything else stays. Copy everything between the root and the slash exactly (m, 7, maj7, m7b5, sus4, add9, 7#11, 7b9, 13, aug, dim7, ...): the b or # inside 7b9 or 7#11 is part of the chord, not a note, and never moves. Keep every bar and every chord in its place: the output has the same number of bars and the same number of chords in each bar as the chart.
+      Submit. to_key is the task's to_key, and bars lists each bar as {"chords": [...]}, in order. Keep reasoning short: one line per bar, each chord as old -> new.

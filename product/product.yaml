@@ -1,0 +1,11 @@
+_ > nanoagent.plugin.v0001.ProductConfig:
+tagline: "Move a chord chart into a new key, with every sharp and flat spelled the way a musician would write it"
+summary: "Pick a key and a chart number. The agent reads a lead-sheet-style chord chart of 8 to 16 bars, with secondary dominants, borrowed chords, slash chords and extensions like maj7#11 and 7b9, and rewrites it in the new key. Spelling counts: in Eb the chord is Bb, never A#. The check transposes the chart again on the circle of fifths and compares every chord symbol."
+highlights:
+  - "All 30 major and minor keys, from Cb major to C# major and Abm to A#m"
+  - "Real chart material: inversions, chromatic bass lines, secondary dominants and borrowed chords"
+  - "Exact spelling rules, double sharps and flats respelled, every chord checked by its bar and position"
+steps:
+  - "Ask for a chart number and the key you want it in, such as chart 42 in F# minor"
+  - "The agent reads the chart, moves every root and bass note by the interval between the keys, and submits the new chart"
+  - "See the transposed chart and the verdict, with any misspelled chord named by bar"
